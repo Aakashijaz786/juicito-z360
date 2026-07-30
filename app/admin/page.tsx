@@ -191,11 +191,11 @@ export default function DashboardPage() {
                   <span
                     className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md text-xs font-bold ${
                       i === 0
-                        ? "bg-amber-100 text-amber-700"
+                        ? "bg-amber-500/15 text-amber-600 dark:text-amber-400"
                         : i === 1
-                        ? "bg-slate-100 text-slate-600"
+                        ? "bg-slate-400/15 text-slate-500 dark:text-slate-300"
                         : i === 2
-                        ? "bg-orange-100 text-orange-700"
+                        ? "bg-orange-500/15 text-orange-600 dark:text-orange-400"
                         : "bg-muted text-muted-foreground"
                     }`}
                   >

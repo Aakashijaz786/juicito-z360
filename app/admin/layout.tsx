@@ -10,6 +10,7 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const NAV = [
   { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
@@ -63,7 +64,11 @@ export default function AdminLayout({
           })}
         </nav>
 
-        <div className="mt-auto">
+        <div className="mt-auto space-y-1">
+          <div className="flex items-center justify-between rounded-lg px-3 py-1">
+            <span className="text-xs font-medium text-muted-foreground">Theme</span>
+            <ThemeToggle />
+          </div>
           <Link
             href="/chat"
             className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"

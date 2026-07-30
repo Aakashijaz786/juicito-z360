@@ -218,7 +218,7 @@ export default function AdminOrdersPage() {
 
                     {/* Payment proof */}
                     {order.payment_screenshot ? (
-                      <div className="mt-3 flex items-center gap-3 rounded-lg border bg-emerald-50/50 p-2">
+                      <div className="mt-3 flex items-center gap-3 rounded-lg border bg-emerald-500/10 p-2">
                         <a
                           href={order.payment_screenshot}
                           target="_blank"

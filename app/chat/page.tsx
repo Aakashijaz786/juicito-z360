@@ -8,6 +8,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { CartSidebar } from "@/components/chat/cart-sidebar";
 import { isImageMessage, imageUrlFromMessage } from "@/lib/format";
 import type { CartDetails } from "@/lib/types";
@@ -175,7 +176,7 @@ export default function ChatPage() {
       {/* Header */}
       <header className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary text-lg text-primary-foreground">
+          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-orange-600 text-lg text-primary-foreground shadow-sm">
             🍔
           </div>
           <div>
@@ -184,6 +185,7 @@ export default function ChatPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <Button variant="outline" size="sm" onClick={newChat}>
             <Plus className="h-4 w-4" /> New Chat
           </Button>

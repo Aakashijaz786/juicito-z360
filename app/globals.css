@@ -4,44 +4,46 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    /* Light — warm off-white, not stark */
+    --background: 30 33% 98%;
+    --foreground: 240 10% 12%;
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
-    --primary: 24 88% 52%;
+    --card-foreground: 240 10% 12%;
+    --primary: 22 89% 52%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 24 90% 96%;
-    --accent-foreground: 24 60% 30%;
+    --secondary: 30 16% 94%;
+    --secondary-foreground: 240 6% 20%;
+    --muted: 30 16% 95%;
+    --muted-foreground: 240 4% 46%;
+    --accent: 24 90% 95%;
+    --accent-foreground: 22 60% 32%;
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 24 88% 52%;
-    --radius: 0.65rem;
+    --border: 30 13% 89%;
+    --input: 30 13% 89%;
+    --ring: 22 89% 52%;
+    --radius: 0.7rem;
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 6%;
-    --card-foreground: 0 0% 98%;
-    --primary: 24 88% 55%;
+    /* Dark — deep neutral slate with a warm orange accent */
+    --background: 240 6% 8%;
+    --foreground: 0 0% 95%;
+    --card: 240 6% 11%;
+    --card-foreground: 0 0% 95%;
+    --primary: 22 92% 56%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 45%;
+    --secondary: 240 5% 16%;
+    --secondary-foreground: 0 0% 92%;
+    --muted: 240 5% 15%;
+    --muted-foreground: 240 5% 63%;
+    --accent: 240 5% 18%;
+    --accent-foreground: 0 0% 96%;
+    --destructive: 0 62% 50%;
     --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 24 88% 55%;
+    --border: 240 5% 18%;
+    --input: 240 5% 22%;
+    --ring: 22 92% 56%;
   }
 }
 
@@ -52,5 +54,21 @@
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    min-height: 100vh;
+    background-image: radial-gradient(
+        60rem 60rem at 110% -10%,
+        hsl(var(--primary) / 0.07),
+        transparent 60%
+      ),
+      radial-gradient(50rem 50rem at -10% 110%, hsl(var(--primary) / 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+}
+
+/* Frosted card helper for a bit more depth */
+@layer utilities {
+  .glass {
+    background-color: hsl(var(--card) / 0.75);
+    backdrop-filter: blur(10px);
   }
 }
