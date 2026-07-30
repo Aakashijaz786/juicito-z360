@@ -90,6 +90,7 @@ export async function finalizeOrder(
     status: "placed",
     order_id: orderId,
     payment_method: paymentMethod,
-    message: `SUCCESS: Order #${orderId} placed successfully. Payment method: ${paymentMethod}.`,
+    total_formatted: cart.total_formatted,
+    message: `SUCCESS: Order #${orderId} placed. Total: ${cart.total_formatted}. Payment: ${paymentMethod}.`,
   };
 }
