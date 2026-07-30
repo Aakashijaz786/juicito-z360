@@ -32,6 +32,7 @@ export async function GET(req: NextRequest) {
       customer_name: session.customer_name,
       customer_phone: session.customer_phone,
       order_id: null,
+      payment_method: null,
     });
 
     const phase = derivePhase(

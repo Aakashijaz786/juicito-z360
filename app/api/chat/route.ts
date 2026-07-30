@@ -93,6 +93,7 @@ export async function POST(req: NextRequest) {
       customer_name: result.customer_name,
       customer_phone: result.customer_phone,
       order_id: result.order_id ?? null,
+      payment_method: result.payment_method ?? null,
     });
 
     return NextResponse.json({
