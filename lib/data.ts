@@ -112,6 +112,15 @@ export async function insertOrder(order: Order): Promise<void> {
   if (error) throw error;
 }
 
+/** Clear the cart in the session immediately after an order is placed. */
+export async function clearSessionCart(userId: string): Promise<void> {
+  const sb = getSupabaseAdmin();
+  await sb.from("sessions").upsert(
+    { user_id: userId, cart: [], address: null, customer_name: null, customer_phone: null, updated_at: new Date().toISOString() },
+    { onConflict: "user_id" }
+  );
+}
+
 export async function listOrders(
   opts: { includeArchived?: boolean } = {}
 ): Promise<Order[]> {

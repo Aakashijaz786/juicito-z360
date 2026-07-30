@@ -1,5 +1,5 @@
 import type { MenuItem, Order, ToolResult } from "@/lib/types";
-import { getCurrency, insertOrder } from "@/lib/data";
+import { getCurrency, insertOrder, clearSessionCart } from "@/lib/data";
 import { getCartDetails } from "./get-cart-details";
 import type { WorkingState } from "./shared";
 
@@ -76,8 +76,10 @@ export async function finalizeOrder(
   };
 
   await insertOrder(order);
+  // Clear Supabase session immediately so stale cart can't persist across errors.
+  await clearSessionCart(userId);
 
-  // Clear session for the next order.
+  // Clear working state for the rest of this turn.
   state.cart = [];
   state.address = null;
   state.customer_name = null;
