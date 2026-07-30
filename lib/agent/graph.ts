@@ -164,7 +164,8 @@ async function guardrailsNode(
         state.menu,
         working,
         state.user_id,
-        true
+        true,
+        state.payment_method ?? "online"
       );
       if (result.success && result.order_id) {
         finalText = injectOrderId(finalText, result.order_id);
