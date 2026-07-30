@@ -1,0 +1,208 @@
+"use client";
+
+import { Fragment, useCallback, useEffect, useMemo, useState } from "react";
+import { Search, Receipt, ExternalLink } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
+import { OrderActions } from "@/components/admin/order-actions";
+import type { Order } from "@/lib/types";
+
+const STATUSES = [
+  "all",
+  "pending_payment",
+  "new",
+  "preparing",
+  "dispatched",
+  "cancelled",
+];
+
+const STATUS_VARIANT: Record<string, "warning" | "info" | "success" | "secondary" | "destructive"> =
+  {
+    pending_payment: "secondary",
+    new: "warning",
+    preparing: "info",
+    dispatched: "success",
+    cancelled: "destructive",
+  };
+
+export default function OrderHistoryPage() {
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [q, setQ] = useState("");
+  const [status, setStatus] = useState("all");
+  const [open, setOpen] = useState<string | null>(null);
+
+  const load = useCallback(() => {
+    fetch("/api/orders?include_archived=true")
+      .then((r) => r.json())
+      .then((d) => Array.isArray(d) && setOrders(d))
+      .catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  const filtered = useMemo(() => {
+    const query = q.trim().toLowerCase();
+    return orders.filter((o) => {
+      if (status !== "all" && o.status !== status) return false;
+      if (!query) return true;
+      return (
+        o.id.toLowerCase().includes(query) ||
+        (o.address || "").toLowerCase().includes(query) ||
+        o.items.some((it) => it.name.toLowerCase().includes(query))
+      );
+    });
+  }, [orders, q, status]);
+
+  return (
+    <div className="mx-auto max-w-5xl space-y-5">
+      <div>
+        <h1 className="text-2xl font-bold">Order History</h1>
+        <p className="text-sm text-muted-foreground">
+          {orders.length} orders total · click a row for details
+        </p>
+      </div>
+
+      {/* Filters */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Search by order id, item, or address…"
+            className="pl-9"
+          />
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          {STATUSES.map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatus(s)}
+              className={`rounded-full border px-3 py-1.5 text-xs capitalize transition-colors ${
+                status === s
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "hover:border-primary"
+              }`}
+            >
+              {s.replace("_", " ")}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50">
+            <tr className="text-left text-xs uppercase text-muted-foreground">
+              <th className="px-4 py-3 font-medium">Order</th>
+              <th className="px-4 py-3 font-medium">Items</th>
+              <th className="px-4 py-3 font-medium">Total</th>
+              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Placed</th>
+              <th className="px-4 py-3 font-medium">Proof</th>
+              <th className="px-4 py-3 text-right font-medium">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {filtered.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-4 py-10 text-center text-muted-foreground">
+                  <Receipt className="mx-auto mb-2 h-8 w-8 opacity-40" />
+                  No matching orders
+                </td>
+              </tr>
+            ) : (
+              filtered.map((o) => (
+                <Fragment key={o.id}>
+                  <tr
+                    className="cursor-pointer hover:bg-muted/40"
+                    onClick={() => setOpen(open === o.id ? null : o.id)}
+                  >
+                    <td className="px-4 py-3 font-medium text-primary">#{o.id}</td>
+                    <td className="px-4 py-3 text-muted-foreground">
+                      {o.items.reduce((s, it) => s + it.quantity, 0)} items
+                    </td>
+                    <td className="px-4 py-3 font-semibold">{o.total_formatted}</td>
+                    <td className="px-4 py-3">
+                      <Badge variant={STATUS_VARIANT[o.status] ?? "secondary"}>
+                        {o.status.replace("_", " ")}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground">
+                      {new Date(o.created_at).toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3">
+                      {o.payment_screenshot ? (
+                        <a
+                          href={o.payment_screenshot}
+                          target="_blank"
+                          rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center gap-1 text-xs text-primary underline"
+                        >
+                          View <ExternalLink className="h-3 w-3" />
+                        </a>
+                      ) : (
+                        <span className="text-xs text-muted-foreground">—</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end">
+                        <OrderActions order={o} onChanged={load} />
+                      </div>
+                    </td>
+                  </tr>
+                  {open === o.id && (
+                    <tr className="bg-muted/30">
+                      <td colSpan={7} className="px-4 py-3">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div>
+                            <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">
+                              Items
+                            </p>
+                            <ul className="space-y-0.5 text-sm">
+                              {o.items.map((it, i) => (
+                                <li key={i} className="flex justify-between">
+                                  <span>
+                                    {it.quantity}× {it.name}
+                                    {it.notes ? (
+                                      <em className="text-muted-foreground"> ({it.notes})</em>
+                                    ) : null}
+                                  </span>
+                                  <span className="font-medium">
+                                    Rs. {Math.round(it.line_total_cents / 100)}
+                                  </span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div className="text-sm">
+                            <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">
+                              Delivery
+                            </p>
+                            <p>{o.address}</p>
+                            <p className="mt-2 text-xs text-muted-foreground">
+                              Customer: {o.user_id}
+                            </p>
+                            {o.paid_at && (
+                              <p className="text-xs text-muted-foreground">
+                                Paid: {new Date(o.paid_at).toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
