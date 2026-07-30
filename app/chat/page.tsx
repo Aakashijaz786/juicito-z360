@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { CartSidebar } from "@/components/chat/cart-sidebar";
-import { isImageMessage, imageUrlFromMessage } from "@/lib/format";
+import { isImageMessage, imageUrlFromMessage, MENU_IMAGE_MARKER } from "@/lib/format";
 import type { CartDetails } from "@/lib/types";
 
 interface ChatMessage {
@@ -65,6 +65,13 @@ export default function ChatPage() {
                   role: "user" as const,
                   content: "",
                   imageUrl: imageUrlFromMessage(m.content),
+                };
+              }
+              if (m.content.startsWith(MENU_IMAGE_MARKER)) {
+                return {
+                  role: "assistant" as const,
+                  content: m.content.slice(MENU_IMAGE_MARKER.length) || "Here's our menu!",
+                  menuImage: true,
                 };
               }
               return {

@@ -3,7 +3,7 @@ import { HumanMessage, AIMessage, type BaseMessage } from "@langchain/core/messa
 
 import { agentGraph, messageText } from "@/lib/agent/graph";
 import { getCartDetails } from "@/lib/agent/tools";
-import { isImageMessage } from "@/lib/format";
+import { isImageMessage, MENU_IMAGE_MARKER } from "@/lib/format";
 import {
   loadMenu,
   loadSession,
@@ -42,9 +42,11 @@ export async function POST(req: NextRequest) {
     ]);
 
     const historyMessages: BaseMessage[] = history.map((m) => {
-      // Image messages (payment screenshots) become a plain note for the LLM.
+      // Image messages (payment screenshots / menu) become plain notes for the LLM.
       const content = isImageMessage(m.content)
         ? "[Sent a payment screenshot]"
+        : m.content.startsWith(MENU_IMAGE_MARKER)
+        ? m.content.slice(MENU_IMAGE_MARKER.length) || "Here's our menu!"
         : m.content;
       return m.role === "assistant"
         ? new AIMessage(content)
@@ -78,8 +80,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Persist conversation + session.
+    // Menu image replies are stored with a marker so they re-render on session restore.
     await appendMessage(userId, "user", text);
-    await appendMessage(userId, "assistant", reply);
+    await appendMessage(userId, "assistant", showMenuImage ? `${MENU_IMAGE_MARKER}${reply}` : reply);
     await saveSession(userId, {
       cart: result.cart,
       address: result.address,

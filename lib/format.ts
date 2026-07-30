@@ -30,6 +30,7 @@ export function norm(s: string): string {
 // Payment screenshots are stored in the chat history as a marker + URL so they
 // can be re-rendered as images when the conversation is restored.
 export const IMAGE_MARKER = "[[img]]";
+export const MENU_IMAGE_MARKER = "[[menu]]";
 
 export function imageMessage(url: string): string {
   return `${IMAGE_MARKER}${url}`;
