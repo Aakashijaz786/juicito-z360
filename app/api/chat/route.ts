@@ -62,6 +62,7 @@ export async function POST(req: NextRequest) {
       customer_name: session.customer_name,
       customer_phone: session.customer_phone,
       payment_method: session.payment_method,
+      order_id: session.order_id,
     });
 
     // Final assistant text = last AI message content.
@@ -90,6 +91,7 @@ export async function POST(req: NextRequest) {
       customer_name: result.customer_name,
       customer_phone: result.customer_phone,
       payment_method: result.payment_method ?? null,
+      order_id: result.order_id ?? null,
     });
 
     const cartDetails = getCartDetails(menu, {

@@ -31,23 +31,25 @@ export interface SessionState {
   customer_name: string | null;
   customer_phone: string | null;
   payment_method: "online" | "cash" | null;
+  order_id: string | null;
 }
 
 export async function loadSession(userId: string): Promise<SessionState> {
   const sb = getSupabaseAdmin();
   const { data, error } = await sb
     .from("sessions")
-    .select("cart, address, customer_name, customer_phone, payment_method")
+    .select("cart, address, customer_name, customer_phone, payment_method, order_id")
     .eq("user_id", userId)
     .maybeSingle();
   if (error) throw error;
-  if (!data) return { cart: [], address: null, customer_name: null, customer_phone: null, payment_method: null };
+  if (!data) return { cart: [], address: null, customer_name: null, customer_phone: null, payment_method: null, order_id: null };
   return {
     cart: Array.isArray(data.cart) ? (data.cart as CartItem[]) : [],
     address: (data.address as string | null) ?? null,
     customer_name: (data.customer_name as string | null) ?? null,
     customer_phone: (data.customer_phone as string | null) ?? null,
     payment_method: (data.payment_method as "online" | "cash" | null) ?? null,
+    order_id: (data.order_id as string | null) ?? null,
   };
 }
 
@@ -64,6 +66,7 @@ export async function saveSession(
       customer_name: state.customer_name,
       customer_phone: state.customer_phone,
       payment_method: state.payment_method,
+      order_id: state.order_id,
       updated_at: new Date().toISOString(),
     },
     { onConflict: "user_id" }

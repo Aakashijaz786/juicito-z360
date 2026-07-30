@@ -55,7 +55,7 @@ async function agentNode(state: AgentStateType): Promise<Partial<AgentStateType>
     order_id: state.order_id,
     payment_method: state.payment_method,
   };
-  const snapshot = buildSnapshot(getCartDetails(state.menu, working), state.payment_method);
+  const snapshot = buildSnapshot(getCartDetails(state.menu, working), state.payment_method, state.order_id);
   const system = new SystemMessage(buildSystemPrompt(state.menu) + snapshot);
 
   const model = new ChatOpenAI({

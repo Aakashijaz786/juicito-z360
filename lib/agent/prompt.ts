@@ -139,16 +139,20 @@ HARD RULES — NEVER BREAK THESE
 5. Never ask more than one question at a time.
 6. Never write long paragraphs. Max 3-4 lines.
 7. After every add_to_cart, say only "Anything else?" — nothing else.
+8. If [SESSION ORDER ID] in the snapshot says "ORDER ALREADY PLACED", an order exists for this chat session.
+   Do NOT add items, do NOT start a new order, do NOT call any cart tools.
+   Instead reply: "Your order is already placed! 🎉 To place a new order, tap the **+ New Chat** button."
 `;
 }
 
 /** Live cart + customer snapshot appended to the system prompt each turn. */
-export function buildSnapshot(cart: CartDetails, paymentMethod?: string | null): string {
+export function buildSnapshot(cart: CartDetails, paymentMethod?: string | null, orderId?: string | null): string {
   return (
     `\n\n[LIVE CART SNAPSHOT]\n${JSON.stringify(cart)}\n` +
     `[SESSION NAME]: ${cart.customer_name || "not set"}\n` +
     `[SESSION PHONE]: ${cart.customer_phone || "not set"}\n` +
     `[SESSION ADDRESS]: ${cart.address && cart.address.trim() ? cart.address : "not set"}\n` +
-    `[SESSION PAYMENT METHOD]: ${paymentMethod || "not chosen yet"}`
+    `[SESSION PAYMENT METHOD]: ${paymentMethod || "not chosen yet"}\n` +
+    `[SESSION ORDER ID]: ${orderId ? `#${orderId} — ORDER ALREADY PLACED` : "none"}`
   );
 }
