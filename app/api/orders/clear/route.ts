@@ -4,7 +4,7 @@ import { archiveOrdersByStatus } from "@/lib/data";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const CLEARABLE = ["dispatched", "delivered", "cancelled"];
+const CLEARABLE = ["pending_payment", "dispatched", "delivered", "cancelled"];
 
 // POST /api/orders/clear  body: { statuses?: string[] }
 // Archives completed orders so the queue stays clean (kept in Order History).

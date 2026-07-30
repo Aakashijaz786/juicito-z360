@@ -117,7 +117,7 @@ export default function AdminOrdersPage() {
   async function clearCompleted() {
     if (
       !confirm(
-        "Clear all dispatched and cancelled orders from the queue?\nThey stay in Order History for your records."
+        "Clear all pending, delivered, dispatched and cancelled orders from the queue?\nThey stay in Order History for your records."
       )
     )
       return;
@@ -125,7 +125,7 @@ export default function AdminOrdersPage() {
       const res = await fetch("/api/orders/clear", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ statuses: ["dispatched", "cancelled"] }),
+        body: JSON.stringify({ statuses: ["pending_payment", "dispatched", "delivered", "cancelled"] }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Clear failed");
@@ -153,7 +153,7 @@ export default function AdminOrdersPage() {
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={clearCompleted}>
-          <Eraser className="h-4 w-4" /> Clear dispatched &amp; cancelled
+          <Eraser className="h-4 w-4" /> Clear queue
         </Button>
       </div>
 
