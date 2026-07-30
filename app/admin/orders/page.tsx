@@ -145,20 +145,20 @@ export default function AdminOrdersPage() {
 
   return (
     <div className="mx-auto max-w-4xl">
-      <div className="mb-6 flex items-start justify-between gap-3">
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold">Order Queue</h1>
           <p className="text-sm text-muted-foreground">
             Live from the chat agent · auto-refreshing every 3s
           </p>
         </div>
-        <Button variant="outline" size="sm" onClick={clearCompleted}>
+        <Button variant="outline" size="sm" onClick={clearCompleted} className="shrink-0">
           <Eraser className="h-4 w-4" /> Clear queue
         </Button>
       </div>
 
       <Tabs value={tab} onValueChange={(v) => setTab(v as OrderStatus)}>
-        <TabsList className="flex-wrap">
+        <TabsList className="flex w-full overflow-x-auto sm:flex-wrap sm:overflow-visible">
           {TABS.map((t) => (
             <TabsTrigger key={t.value} value={t.value}>
               {t.label}

@@ -125,8 +125,8 @@ export default function OrderHistoryPage() {
         </div>
       </div>
 
-      {/* Table */}
-      <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
+      {/* Desktop table */}
+      <div className="hidden overflow-hidden rounded-xl border bg-card shadow-sm sm:block">
         <table className="w-full text-sm">
           <thead className="bg-muted/50">
             <tr className="text-left text-xs uppercase text-muted-foreground">
@@ -247,6 +247,80 @@ export default function OrderHistoryPage() {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* Mobile cards */}
+      <div className="flex flex-col gap-3 sm:hidden">
+        {filtered.length === 0 ? (
+          <div className="flex flex-col items-center gap-2 rounded-xl border bg-card py-10 text-center text-muted-foreground shadow-sm">
+            <Receipt className="h-8 w-8 opacity-40" />
+            No matching orders
+          </div>
+        ) : (
+          filtered.map((o) => (
+            <div
+              key={o.id}
+              className="rounded-xl border bg-card shadow-sm"
+              onClick={() => setOpen(open === o.id ? null : o.id)}
+            >
+              <div className="flex cursor-pointer items-start justify-between gap-3 p-4">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold text-primary">#{o.id}</span>
+                    <Badge variant={STATUS_VARIANT[o.status] ?? "secondary"} className="text-xs">
+                      {o.status.replace("_", " ")}
+                    </Badge>
+                  </div>
+                  <p className="mt-1 text-sm font-medium">{o.customer_name || "—"}</p>
+                  {o.customer_phone && (
+                    <p className="text-xs text-muted-foreground">{o.customer_phone}</p>
+                  )}
+                  <div className="mt-1.5 flex items-center gap-3 text-xs text-muted-foreground">
+                    <span>{o.items.reduce((s, it) => s + it.quantity, 0)} items</span>
+                    <span className="font-semibold text-foreground">{o.total_formatted}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {new Date(o.created_at).toLocaleString()}
+                  </p>
+                </div>
+                <div className="flex shrink-0 flex-col items-end gap-2">
+                  {o.payment_screenshot && (
+                    <a
+                      href={o.payment_screenshot}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="inline-flex items-center gap-1 text-xs text-primary underline"
+                    >
+                      Proof <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
+                  <div onClick={(e) => e.stopPropagation()}>
+                    <OrderActions order={o} onChanged={load} />
+                  </div>
+                </div>
+              </div>
+              {open === o.id && (
+                <div className="border-t bg-muted/30 px-4 py-3">
+                  <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">Items</p>
+                  <ul className="mb-3 space-y-0.5 text-sm">
+                    {o.items.map((it, i) => (
+                      <li key={i} className="flex justify-between">
+                        <span>{it.quantity}× {it.name}</span>
+                        <span className="font-medium">Rs. {Math.round(it.line_total_cents / 100)}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="mb-1 text-xs font-semibold uppercase text-muted-foreground">Delivery</p>
+                  <p className="text-sm">{o.address}</p>
+                  <p className="text-xs text-muted-foreground capitalize">
+                    Payment: {o.payment_method || "online"}
+                  </p>
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
     </div>
   );

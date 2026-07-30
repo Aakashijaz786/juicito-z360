@@ -256,8 +256,8 @@ export default function DashboardPage() {
         {recent.length === 0 ? (
           <p className="py-6 text-center text-sm text-muted-foreground">No orders yet</p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
+          <div className="overflow-x-auto -mx-5 px-5">
+            <table className="w-full min-w-[560px] text-sm">
               <thead>
                 <tr className="border-b text-left text-xs uppercase text-muted-foreground">
                   <th className="pb-2 font-medium">Order</th>

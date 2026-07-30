@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Send, Plus, LayoutDashboard, Loader2, Paperclip } from "lucide-react";
+import { Send, Plus, LayoutDashboard, Loader2, Paperclip, ShoppingCart, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -40,6 +40,7 @@ export default function ChatPage() {
   const [phase, setPhase] = useState("greeting");
   const [orderId, setOrderId] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<"online" | "cash" | null>(null);
+  const [showMobileCart, setShowMobileCart] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -177,38 +178,77 @@ export default function ChatPage() {
     setPhase("greeting");
     setOrderId(null);
     setPaymentMethod(null);
+    setShowMobileCart(false);
     toast.success("Started a new chat");
   }
 
   const busy = loading || uploading;
 
+  const cartItemCount = cart?.items.reduce((s, i) => s + i.quantity, 0) ?? 0;
+
   return (
     <div className="mx-auto flex h-screen max-w-6xl flex-col p-3 md:p-6">
       {/* Header */}
-      <header className="mb-4 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-orange-600 text-lg text-primary-foreground shadow-sm">
+      <header className="mb-3 flex items-center justify-between gap-2 md:mb-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-orange-600 text-base text-primary-foreground shadow-sm md:h-10 md:w-10 md:text-lg">
             🍔
           </div>
           <div>
-            <h1 className="text-lg font-bold leading-tight">Juicito</h1>
+            <h1 className="text-base font-bold leading-tight md:text-lg">Juicito</h1>
             <p className="text-xs text-muted-foreground">Order by chat · Islamabad</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5 md:gap-2">
           <ThemeToggle />
+          {/* Mobile cart toggle */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="relative md:hidden"
+            onClick={() => setShowMobileCart((v) => !v)}
+            aria-label="Toggle cart"
+          >
+            <ShoppingCart className="h-4 w-4" />
+            {cartItemCount > 0 && (
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+                {cartItemCount}
+              </span>
+            )}
+          </Button>
           <Button variant="outline" size="sm" onClick={newChat}>
-            <Plus className="h-4 w-4" /> New Chat
+            <Plus className="h-4 w-4" />
+            <span className="hidden sm:inline">New Chat</span>
           </Button>
           <Button variant="ghost" size="sm" asChild>
             <Link href="/admin">
-              <LayoutDashboard className="h-4 w-4" /> Admin
+              <LayoutDashboard className="h-4 w-4" />
+              <span className="hidden sm:inline">Admin</span>
             </Link>
           </Button>
         </div>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col-reverse gap-4 md:flex-row">
+      {/* Mobile cart overlay */}
+      {showMobileCart && (
+        <div className="fixed inset-0 z-50 md:hidden">
+          <div
+            className="absolute inset-0 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowMobileCart(false)}
+          />
+          <div className="absolute bottom-0 left-0 right-0 max-h-[80vh] overflow-y-auto rounded-t-2xl bg-background p-4 shadow-xl">
+            <div className="mb-3 flex items-center justify-between">
+              <span className="font-semibold">Your Cart</span>
+              <Button variant="ghost" size="icon" onClick={() => setShowMobileCart(false)}>
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <CartSidebar cart={cart} phase={phase} orderId={orderId} paymentMethod={paymentMethod} />
+          </div>
+        </div>
+      )}
+
+      <div className="flex min-h-0 flex-1 flex-col gap-3 md:flex-row md:gap-4">
         {/* Chat panel */}
         <div className="flex min-h-0 flex-1 flex-col rounded-xl border bg-card shadow-sm">
           <div ref={scrollRef} className="flex-1 space-y-3 overflow-y-auto p-4">
@@ -292,8 +332,10 @@ export default function ChatPage() {
           </div>
         </div>
 
-        {/* Cart sidebar */}
-        <CartSidebar cart={cart} phase={phase} orderId={orderId} paymentMethod={paymentMethod} />
+        {/* Cart sidebar — desktop only (mobile uses overlay) */}
+        <div className="hidden md:block">
+          <CartSidebar cart={cart} phase={phase} orderId={orderId} paymentMethod={paymentMethod} />
+        </div>
       </div>
     </div>
   );
