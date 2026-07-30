@@ -73,7 +73,7 @@ export async function buildReceiptPdf(order: Order): Promise<Uint8Array> {
   };
 
   label("ORDER", `#${order.id}`);
-  label("DATE", new Date(order.created_at).toLocaleString());
+  label("DATE", new Date(order.created_at).toLocaleString("en-PK", { timeZone: "Asia/Karachi" }));
   label("CUSTOMER", cust.name);
   label("CONTACT", cust.contact);
 
