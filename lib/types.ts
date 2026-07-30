@@ -52,7 +52,10 @@ export type OrderStatus =
   | "new"
   | "preparing"
   | "dispatched"
+  | "delivered"
   | "cancelled";
+
+export type PaymentMethod = "online" | "cash";
 
 export interface OrderItem {
   id: string;
@@ -76,8 +79,11 @@ export interface Order {
   total_cents: number;
   total_formatted: string;
   status: OrderStatus;
+  payment_method: PaymentMethod | null;
   payment_screenshot: string | null;
   paid_at?: string | null;
+  delivered_at?: string | null;
+  cash_collected_at?: string | null;
   receipt_url?: string | null;
 }
 

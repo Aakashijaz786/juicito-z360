@@ -12,6 +12,8 @@ import {
   CreditCard,
   FileText,
   Eraser,
+  Banknote,
+  PackageCheck,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -26,6 +28,7 @@ const TABS: { value: OrderStatus; label: string }[] = [
   { value: "new", label: "New" },
   { value: "preparing", label: "Preparing" },
   { value: "dispatched", label: "Dispatched" },
+  { value: "delivered", label: "Delivered" },
   { value: "cancelled", label: "Cancelled" },
 ];
 
@@ -35,6 +38,7 @@ const STATUS_VARIANT: Record<string, "warning" | "info" | "success" | "secondary
     new: "warning",
     preparing: "info",
     dispatched: "success",
+    delivered: "success",
     cancelled: "destructive",
   };
 
@@ -95,6 +99,18 @@ export default function AdminOrdersPage() {
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Update failed");
       load();
+    }
+  }
+
+  async function collectCash(order: Order) {
+    try {
+      const res = await fetch(`/api/orders/${order.id}/cash-collected`, { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Update failed");
+      toast.success(`Cash collected for order #${order.id}`);
+      load();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Update failed");
     }
   }
 
@@ -165,11 +181,20 @@ export default function AdminOrdersPage() {
                 {visible.map((order) => (
                   <Card key={order.id} className="p-4">
                     <div className="mb-3 flex items-center justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-bold text-primary">#{order.id}</span>
                         <Badge variant={STATUS_VARIANT[order.status] ?? "secondary"}>
                           {order.status.replace("_", " ")}
                         </Badge>
+                        {order.payment_method === "cash" ? (
+                          <Badge variant="secondary" className="gap-1 text-xs">
+                            <Banknote className="h-3 w-3" /> Cash
+                          </Badge>
+                        ) : (
+                          <Badge variant="secondary" className="gap-1 text-xs">
+                            <CreditCard className="h-3 w-3" /> Online
+                          </Badge>
+                        )}
                       </div>
                       <span
                         className="flex items-center gap-1 text-xs text-muted-foreground"
@@ -216,8 +241,8 @@ export default function AdminOrdersPage() {
                       {order.paid_at && <span>Paid: {fullTime(order.paid_at)}</span>}
                     </div>
 
-                    {/* Payment proof */}
-                    {order.payment_screenshot ? (
+                    {/* Payment proof — online orders only */}
+                    {order.payment_method !== "cash" && order.payment_screenshot ? (
                       <div className="mt-3 flex items-center gap-3 rounded-lg border bg-emerald-500/10 p-2">
                         <a
                           href={order.payment_screenshot}
@@ -246,7 +271,7 @@ export default function AdminOrdersPage() {
                           </a>
                         </div>
                       </div>
-                    ) : order.status === "pending_payment" ? (
+                    ) : order.payment_method !== "cash" && order.status === "pending_payment" ? (
                       <p className="mt-3 rounded-lg border border-dashed bg-muted/40 p-2 text-xs text-muted-foreground">
                         Awaiting payment screenshot from customer…
                       </p>
@@ -267,7 +292,8 @@ export default function AdminOrdersPage() {
                       {order.status === "new" && (
                         <>
                           <Button size="sm" onClick={() => setStatus(order, "preparing")}>
-                            <ChefHat className="h-4 w-4" /> Confirm Payment &amp; Start Preparing
+                            <ChefHat className="h-4 w-4" />
+                            {order.payment_method === "cash" ? "Start Preparing" : "Confirm Payment & Start Preparing"}
                           </Button>
                           <Button
                             size="sm"
@@ -298,6 +324,29 @@ export default function AdminOrdersPage() {
                         <div className="flex flex-wrap items-center gap-3">
                           <span className="flex items-center gap-1 text-sm text-emerald-600">
                             <CheckCircle2 className="h-4 w-4" /> Out for delivery
+                          </span>
+                          {order.payment_method === "cash" && (
+                            <Button size="sm" onClick={() => collectCash(order)}>
+                              <Banknote className="h-4 w-4" /> Mark Cash Collected
+                            </Button>
+                          )}
+                          {order.receipt_url && (
+                            <a
+                              href={order.receipt_url}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium text-primary hover:bg-accent"
+                            >
+                              <FileText className="h-3.5 w-3.5" /> Delivery Receipt (PDF)
+                            </a>
+                          )}
+                        </div>
+                      )}
+                      {order.status === "delivered" && (
+                        <div className="flex flex-wrap items-center gap-3">
+                          <span className="flex items-center gap-1 text-sm text-emerald-600">
+                            <PackageCheck className="h-4 w-4" />
+                            {order.cash_collected_at ? "Cash collected · Delivered" : "Delivered"}
                           </span>
                           {order.receipt_url && (
                             <a

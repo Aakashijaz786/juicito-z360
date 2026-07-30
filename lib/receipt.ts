@@ -139,7 +139,7 @@ export async function buildReceiptPdf(order: Order): Promise<Uint8Array> {
     color: DARK,
   });
   y -= 12;
-  page.drawText("EasyPaisa/JazzCash 0346 4880929 (Afnan Hassan)", {
+  page.drawText("EasyPaisa/JazzCash 0300 5413902 (Aakash Ijaz)", {
     x: margin,
     y,
     size: 7,

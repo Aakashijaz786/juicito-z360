@@ -39,6 +39,7 @@ export default function ChatPage() {
   const [cart, setCart] = useState<CartDetails | null>(null);
   const [phase, setPhase] = useState("greeting");
   const [orderId, setOrderId] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"online" | "cash" | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -76,6 +77,7 @@ export default function ChatPage() {
         setCart(data.cart ?? null);
         setPhase(data.phase ?? "greeting");
         if (data.last_order?.id) setOrderId(data.last_order.id);
+        if (data.last_order?.payment_method) setPaymentMethod(data.last_order.payment_method);
       } catch {
         /* first-time user — keep greeting */
       }
@@ -113,6 +115,7 @@ export default function ChatPage() {
       setCart(data.cart ?? null);
       setPhase(data.phase ?? "ordering");
       if (data.order_id) setOrderId(data.order_id);
+      if (data.payment_method) setPaymentMethod(data.payment_method);
     } catch (e) {
       const msg = e instanceof Error ? e.message : "Something went wrong";
       toast.error(msg);
@@ -166,6 +169,7 @@ export default function ChatPage() {
     setCart(null);
     setPhase("greeting");
     setOrderId(null);
+    setPaymentMethod(null);
     toast.success("Started a new chat");
   }
 
@@ -258,8 +262,8 @@ export default function ChatPage() {
               variant="outline"
               size="icon"
               onClick={() => fileRef.current?.click()}
-              disabled={busy}
-              title="Send payment screenshot"
+              disabled={busy || paymentMethod === "cash"}
+              title={paymentMethod === "cash" ? "Not needed for cash orders" : "Send payment screenshot"}
             >
               <Paperclip className="h-4 w-4" />
             </Button>
@@ -282,7 +286,7 @@ export default function ChatPage() {
         </div>
 
         {/* Cart sidebar */}
-        <CartSidebar cart={cart} phase={phase} orderId={orderId} />
+        <CartSidebar cart={cart} phase={phase} orderId={orderId} paymentMethod={paymentMethod} />
       </div>
     </div>
   );

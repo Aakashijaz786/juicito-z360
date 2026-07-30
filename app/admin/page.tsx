@@ -9,6 +9,8 @@ import {
   TrendingUp,
   Trophy,
   RotateCcw,
+  CreditCard,
+  Banknote,
 } from "lucide-react";
 import { StatCard } from "@/components/admin/stat-card";
 import { SalesChart } from "@/components/admin/sales-chart";
@@ -59,9 +61,20 @@ export default function DashboardPage() {
   const years = useMemo(() => availableYears(orders, now.getFullYear()), [orders, now]);
 
   const pendingNow = orders.filter((o) => o.status === "pending_payment").length;
+  const paidStatuses = ["new", "preparing", "dispatched", "delivered"];
   const allTimeRevenue = orders
-    .filter((o) => ["new", "preparing", "dispatched"].includes(o.status))
+    .filter((o) => paidStatuses.includes(o.status))
     .reduce((s, o) => s + o.total_cents, 0);
+
+  const onlineOrders = orders.filter(
+    (o) => (o.payment_method === "online" || o.payment_method == null) && paidStatuses.includes(o.status)
+  );
+  const cashOrders = orders.filter(
+    (o) => o.payment_method === "cash" && paidStatuses.includes(o.status)
+  );
+  const onlineRevenue = onlineOrders.reduce((s, o) => s + o.total_cents, 0);
+  const cashRevenue = cashOrders.reduce((s, o) => s + o.total_cents, 0);
+
   const recent = orders.slice(0, 7);
 
   const periodLabel = month === null ? `${year}` : `${MONTHS[month]} ${year}`;
@@ -171,6 +184,24 @@ export default function DashboardPage() {
           sub="All statuses"
           accent="slate"
           icon={<ShoppingBag className="h-4 w-4" />}
+        />
+      </div>
+
+      {/* Payment method breakdown */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <StatCard
+          label="Online Payments"
+          value={rupees(onlineRevenue)}
+          sub={`${onlineOrders.length} order${onlineOrders.length !== 1 ? "s" : ""} via EasyPaisa/JazzCash`}
+          accent="blue"
+          icon={<CreditCard className="h-4 w-4" />}
+        />
+        <StatCard
+          label="Cash on Delivery"
+          value={rupees(cashRevenue)}
+          sub={`${cashOrders.length} order${cashOrders.length !== 1 ? "s" : ""} paid in cash`}
+          accent="green"
+          icon={<Banknote className="h-4 w-4" />}
         />
       </div>
 

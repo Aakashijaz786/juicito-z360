@@ -33,6 +33,10 @@ export const AgentState = Annotation.Root({
     ...lastWins<string | null>(),
     default: () => null,
   }),
+  payment_method: Annotation<"online" | "cash" | null>({
+    ...lastWins<"online" | "cash" | null>(),
+    default: () => null,
+  }),
   // Which real tools fired this turn (drives the guardrail node).
   address_tool_called: Annotation<boolean>({
     ...lastWins<boolean>(),

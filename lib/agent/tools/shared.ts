@@ -9,6 +9,7 @@ export interface WorkingState {
   customer_name: string | null;
   customer_phone: string | null;
   order_id: string | null;
+  payment_method: "online" | "cash" | null;
 }
 
 export function findMenuItem(

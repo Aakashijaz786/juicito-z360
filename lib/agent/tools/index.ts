@@ -7,6 +7,7 @@ import { removeFromCart } from "./remove-from-cart";
 import { getCartDetails } from "./get-cart-details";
 import { setShippingAddress } from "./set-shipping-address";
 import { setCustomerDetails } from "./set-customer-details";
+import { setPaymentMethod } from "./set-payment-method";
 import { finalizeOrder } from "./finalize-order";
 
 export {
@@ -15,6 +16,7 @@ export {
   getCartDetails,
   setShippingAddress,
   setCustomerDetails,
+  setPaymentMethod,
   finalizeOrder,
 };
 export type { WorkingState } from "./shared";
@@ -109,6 +111,25 @@ export const TOOL_SPECS = [
   {
     type: "function" as const,
     function: {
+      name: "set_payment_method",
+      description:
+        "Saves the customer's chosen payment method. Call this as soon as the user specifies 'online' or 'cash'.",
+      parameters: {
+        type: "object",
+        properties: {
+          method: {
+            type: "string",
+            enum: ["online", "cash"],
+            description: "'online' for EasyPaisa/JazzCash; 'cash' for cash on delivery.",
+          },
+        },
+        required: ["method"],
+      },
+    },
+  },
+  {
+    type: "function" as const,
+    function: {
       name: "finalize_order",
       description:
         "Gatekeeper that validates cart/address/confirmation, saves the order, and clears the session on success.",
@@ -151,8 +172,16 @@ export async function dispatchTool(
       return setShippingAddress(state, args.address ?? "");
     case "set_customer_details":
       return setCustomerDetails(state, args.name ?? "", args.phone ?? "");
+    case "set_payment_method":
+      return setPaymentMethod(state, (args.method as "online" | "cash") ?? "online");
     case "finalize_order":
-      return finalizeOrder(menu, state, userId, Boolean(args.confirmation));
+      return finalizeOrder(
+        menu,
+        state,
+        userId,
+        Boolean(args.confirmation),
+        state.payment_method ?? "online"
+      );
     default:
       return { success: false, message: `Unknown tool: ${name}` };
   }

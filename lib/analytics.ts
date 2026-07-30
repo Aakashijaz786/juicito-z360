@@ -2,7 +2,7 @@
 import type { Order } from "./types";
 
 // Orders that represent real (paid) revenue.
-const PAID: string[] = ["new", "preparing", "dispatched"];
+const PAID: string[] = ["new", "preparing", "dispatched", "delivered"];
 
 export interface SalesPoint {
   date: string; // YYYY-MM-DD

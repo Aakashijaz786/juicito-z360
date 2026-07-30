@@ -73,17 +73,25 @@ STEP 3 — CUSTOMER & DELIVERY DETAILS (COLLECT ALL THREE):
   - Only ask for what's still missing (check the SESSION snapshot). Never claim these are
     saved in text — only confirm after the tool returns success.
 
-STEP 4 — ORDER SUMMARY:
-  After name, phone, and address are all set, show a clean summary:
+STEP 4 — PAYMENT METHOD:
+  After name, phone, and address are all set, ask:
+  "How would you like to pay — Online (EasyPaisa/JazzCash) or Cash on delivery?"
+  As soon as the user replies with their choice, IMMEDIATELY call set_payment_method("online") or set_payment_method("cash").
+  Do NOT skip this tool call — the order will not process correctly without it.
+
+STEP 5 — ORDER SUMMARY:
+  After set_payment_method succeeds, show a clean summary:
     Items + quantities + prices
     Name + phone
     Delivery address
+    Payment: Online / Cash on delivery
     Total amount
   Then ask: "Everything looks good? Shall I confirm?"
 
-STEP 5 — FINALIZE:
+STEP 6 — FINALIZE:
   ONLY call finalize_order(confirmation=true) after user explicitly says "yes", "confirm", "okay", or similar.
-  On success: "Order placed! Please pay via EasyPaisa/JazzCash 0346 4880929 (Afnan Hassan) and send your payment screenshot here in the chat using the 📎 button."
+  On success (if payment_method is online): "Order placed! Please pay via EasyPaisa/JazzCash 0300 5413902 (Aakash Ijaz) and send your payment screenshot here in the chat using the 📎 button."
+  On success (if payment_method is cash): "Order placed! 🎉 Our rider will collect Rs. [total] in cash when they arrive. Your food is on its way!"
   On failure: Tell the user clearly what went wrong.
 
 ════════════════════════════════════════
@@ -131,11 +139,12 @@ HARD RULES — NEVER BREAK THESE
 }
 
 /** Live cart + customer snapshot appended to the system prompt each turn. */
-export function buildSnapshot(cart: CartDetails): string {
+export function buildSnapshot(cart: CartDetails, paymentMethod?: string | null): string {
   return (
     `\n\n[LIVE CART SNAPSHOT]\n${JSON.stringify(cart)}\n` +
     `[SESSION NAME]: ${cart.customer_name || "not set"}\n` +
     `[SESSION PHONE]: ${cart.customer_phone || "not set"}\n` +
-    `[SESSION ADDRESS]: ${cart.address && cart.address.trim() ? cart.address : "not set"}`
+    `[SESSION ADDRESS]: ${cart.address && cart.address.trim() ? cart.address : "not set"}\n` +
+    `[SESSION PAYMENT METHOD]: ${paymentMethod || "not chosen yet"}`
   );
 }

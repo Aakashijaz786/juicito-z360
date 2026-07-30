@@ -101,11 +101,15 @@ export async function POST(req: NextRequest) {
       cart: cartDetails,
       address: result.address,
       order_id: result.order_id ?? null,
+      payment_method: result.payment_method ?? null,
       phase: result.phase,
     });
   } catch (err) {
     console.error("[/api/chat] error:", err);
-    const message = err instanceof Error ? err.message : "Unknown error";
+    const message =
+      err instanceof Error
+        ? err.message
+        : (err as any)?.message ?? JSON.stringify(err) ?? "Unknown error";
     return NextResponse.json(
       { error: `Agent error: ${message}` },
       { status: 500 }

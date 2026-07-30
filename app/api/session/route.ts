@@ -49,6 +49,7 @@ export async function GET(req: NextRequest) {
         ? {
             id: lastOrder.id,
             status: lastOrder.status,
+            payment_method: lastOrder.payment_method ?? "online",
             payment_screenshot: lastOrder.payment_screenshot,
           }
         : null,

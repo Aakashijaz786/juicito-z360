@@ -21,7 +21,8 @@ export async function finalizeOrder(
   menu: MenuItem[],
   state: WorkingState,
   userId: string,
-  confirmation: boolean
+  confirmation: boolean,
+  paymentMethod: "online" | "cash" = "online"
 ): Promise<ToolResult> {
   if (state.cart.length === 0) {
     return {
@@ -54,6 +55,10 @@ export async function finalizeOrder(
 
   const cart = getCartDetails(menu, state);
   const orderId = newOrderId();
+
+  // Cash orders go directly to `new` (no screenshot needed); online waits for payment proof.
+  const orderStatus = paymentMethod === "cash" ? "new" : "pending_payment";
+
   const order: Order = {
     id: orderId,
     user_id: userId,
@@ -65,8 +70,8 @@ export async function finalizeOrder(
     items: cart.items,
     total_cents: cart.total_cents,
     total_formatted: cart.total_formatted,
-    // Order placed, awaiting a payment screenshot (uploaded in chat).
-    status: "pending_payment",
+    status: orderStatus,
+    payment_method: paymentMethod,
     payment_screenshot: null,
   };
 
@@ -78,11 +83,13 @@ export async function finalizeOrder(
   state.customer_name = null;
   state.customer_phone = null;
   state.order_id = orderId;
+  state.payment_method = paymentMethod;
 
   return {
     success: true,
     status: "placed",
     order_id: orderId,
-    message: `SUCCESS: Order #${orderId} placed successfully. Thank you!`,
+    payment_method: paymentMethod,
+    message: `SUCCESS: Order #${orderId} placed successfully. Payment method: ${paymentMethod}.`,
   };
 }

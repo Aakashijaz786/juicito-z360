@@ -53,8 +53,9 @@ async function agentNode(state: AgentStateType): Promise<Partial<AgentStateType>
     customer_name: state.customer_name,
     customer_phone: state.customer_phone,
     order_id: state.order_id,
+    payment_method: state.payment_method,
   };
-  const snapshot = buildSnapshot(getCartDetails(state.menu, working));
+  const snapshot = buildSnapshot(getCartDetails(state.menu, working), state.payment_method);
   const system = new SystemMessage(buildSystemPrompt(state.menu) + snapshot);
 
   const model = new ChatOpenAI({
@@ -85,6 +86,7 @@ async function toolsNode(state: AgentStateType): Promise<Partial<AgentStateType>
     customer_name: state.customer_name,
     customer_phone: state.customer_phone,
     order_id: state.order_id,
+    payment_method: state.payment_method,
   };
 
   const toolMessages: ToolMessage[] = [];
@@ -117,6 +119,7 @@ async function toolsNode(state: AgentStateType): Promise<Partial<AgentStateType>
     customer_name: working.customer_name,
     customer_phone: working.customer_phone,
     order_id: working.order_id,
+    payment_method: working.payment_method,
     phase: derivePhase(working.cart, working.address, working.order_id),
     address_tool_called: addressCalled,
     finalize_tool_called: finalizeCalled,
@@ -136,6 +139,7 @@ async function guardrailsNode(
     customer_name: state.customer_name,
     customer_phone: state.customer_phone,
     order_id: state.order_id,
+    payment_method: state.payment_method,
   };
 
   // Guardrail 1: LLM claimed the address was set but never called the tool.
@@ -176,6 +180,7 @@ async function guardrailsNode(
     customer_name: working.customer_name,
     customer_phone: working.customer_phone,
     order_id: working.order_id,
+    payment_method: working.payment_method,
     phase: derivePhase(working.cart, working.address, working.order_id),
   };
 }

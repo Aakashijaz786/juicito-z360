@@ -5,6 +5,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Juicito Order Agent",
   description: "AI-powered restaurant ordering agent (Z360)",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 const themeScript = `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`;

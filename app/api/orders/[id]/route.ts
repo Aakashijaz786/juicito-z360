@@ -11,6 +11,7 @@ const ALLOWED: OrderStatus[] = [
   "new",
   "preparing",
   "dispatched",
+  "delivered",
   "cancelled",
 ];
 

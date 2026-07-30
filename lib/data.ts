@@ -223,6 +223,34 @@ export async function getLatestOrder(userId: string): Promise<Order | null> {
   return (data as Order) ?? null;
 }
 
+/** Customer confirms they received the order (cash delivery). Moves to `delivered`. */
+export async function markOrderDelivered(orderId: string): Promise<Order | null> {
+  const sb = getSupabaseAdmin();
+  const nowIso = new Date().toISOString();
+  const { data, error } = await sb
+    .from("orders")
+    .update({ status: "delivered", delivered_at: nowIso })
+    .eq("id", orderId)
+    .select("*")
+    .maybeSingle();
+  if (error) throw error;
+  return (data as Order) ?? null;
+}
+
+/** Admin confirms cash was collected. Moves to `delivered` and stamps cash_collected_at. */
+export async function markCashCollected(orderId: string): Promise<Order | null> {
+  const sb = getSupabaseAdmin();
+  const nowIso = new Date().toISOString();
+  const { data, error } = await sb
+    .from("orders")
+    .update({ status: "delivered", cash_collected_at: nowIso })
+    .eq("id", orderId)
+    .select("*")
+    .maybeSingle();
+  if (error) throw error;
+  return (data as Order) ?? null;
+}
+
 /** Attach a payment screenshot URL and move the order to `new` (awaiting admin). */
 export async function attachPaymentScreenshot(
   orderId: string,
